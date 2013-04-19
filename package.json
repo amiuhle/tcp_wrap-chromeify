@@ -1,0 +1,16 @@
+{
+  "name": "tcp_wrap-chromeify",
+  "version": "0.0.1",
+  "description": "NodeJS process.binding('tcp_wrap') for Chrome Apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/amiuhle/tcp_wrap-chromeify.git"
+  },
+  "author": "Timo Uhlmann <timouhlmann@gmail.com>",
+  "license": "BSD",
+  "readmeFilename": "README.md"
+}
