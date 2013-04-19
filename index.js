@@ -56,9 +56,9 @@ void TCPWrap::Initialize(Handle<Object> target) {
   target->Set(String::NewSymbol("TCP"), tcpConstructor);
 } */
 
-
-
 var noop = function() {};
+var socket = chrome.socket;
+var timers = require('timers');
 
 function TCP() {
   this._socketId = null;
@@ -67,7 +67,7 @@ function TCP() {
 
 TCP.prototype.close = function() {
   this.readStop();
-  chrome.socket.destroy(this._socketId);
+  socket.destroy(this._socketId);
 };
 
 TCP.prototype.ref = function() {
@@ -79,12 +79,11 @@ TCP.prototype.unref = function() {
 };
 
 TCP.prototype.readStart = function() {
-  console.log('TCP.readStart');
-  this._readHandle = setInterval(read(this), 500);
+  this._readHandle = timers.setInterval(read, 500, this);
 };
 
 var read = function(self) {
-  chrome.socket.read(self._socketId, undefined, function(readInfo) {
+  socket.read(self._socketId, undefined, function(readInfo) {
     if(readInfo.resultCode > 0) {
       var data = readInfo.data;
       var view = new Uint8Array(data);
@@ -95,7 +94,7 @@ var read = function(self) {
 };
 
 TCP.prototype.readStop = function() {
-  clearInterval(this._readHandle);
+  timers.clearInterval(this._readHandle);
 };
 
 TCP.prototype.shutdown = function() {
@@ -118,8 +117,7 @@ TCP.prototype.writeBuffer = function(data) {
     oncomplete: noop,
     bytes: data.byteLength
   };
-  chrome.socket.write(this._socketId, data, function(writeInfo) {
-    console.log('write callback', writeInfo);
+  socket.write(this._socketId, data, function(writeInfo) {
     self.writeQueueSize -= writeInfo.bytesWritten;
     req.oncomplete(0, self, req);
   });
@@ -155,9 +153,9 @@ TCP.prototype.connect = function(address, port) {
   var req = {
     oncomplete: noop
   };
-  chrome.socket.create('tcp', undefined, function (createInfo) {
+  socket.create('tcp', undefined, function (createInfo) {
     self._socketId = createInfo.socketId;
-    chrome.socket.connect(self._socketId, address, port, function(result) {
+    socket.connect(self._socketId, address, port, function(result) {
       req.oncomplete(0, self, result, true, true);
     });
   });
@@ -176,11 +174,11 @@ TCP.prototype.getsocketname = function() {
   console.log('TCP.getsocketname', arguments);
 };
 
-TCP.prototype.setNoDelay = function() {
-  console.log('TCP.setNoDelay', arguments);
+TCP.prototype.setNoDelay = function(enable) {
+  console.log('TCP.setNoDelay', enable);
 };
 
-TCP.prototype.setKeepAlive = function() {
+TCP.prototype.setKeepAlive = function(enable, delay) {
   console.log('TCP.setKeepAlive', arguments);
 };
 
